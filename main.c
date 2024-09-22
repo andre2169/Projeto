@@ -294,3 +294,5 @@ int main() {
 
     return 0;  // Finaliza o programa
 }
+
+printf("OI...\n");
