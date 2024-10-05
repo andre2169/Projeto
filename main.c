@@ -61,16 +61,21 @@ int verificarDuplicidade(char titulo[100]) {
 void adicionarLivro() {
     // Verifica se a biblioteca está cheia
     if (quantidade_livros >= MAX_LIVROS) {
-        printf("A biblioteca esta cheia. Nao is possivel adicionar mais livros.\n");
+        printf("A biblioteca esta cheia. Nao e possivel adicionar mais livros.\n");
         return;
     }
 
     Livro novoLivro;  // Cria uma nova instância de livro
 
     // Entrada do título
-    printf("Digite o titulo: ");
-    fgets(novoLivro.titulo, sizeof(novoLivro.titulo), stdin);
-    novoLivro.titulo[strcspn(novoLivro.titulo, "\n")] = '\0';  // Remove o '\n'
+    do {
+        printf("Digite o titulo: ");
+        fgets(novoLivro.titulo, sizeof(novoLivro.titulo), stdin);
+        novoLivro.titulo[strcspn(novoLivro.titulo, "\n")] = '\0';  // Remove o '\n'
+        if (strlen(novoLivro.titulo) == 0) {
+            printf("Erro: O titulo nao pode ficar em branco.\n");
+        }
+    } while (strlen(novoLivro.titulo) == 0);
 
     // Verifica se o título já existe
     if (verificarDuplicidade(novoLivro.titulo)) {
@@ -79,9 +84,14 @@ void adicionarLivro() {
     }
 
     // Entrada do autor
-    printf("Digite o autor: ");
-    fgets(novoLivro.autor, sizeof(novoLivro.autor), stdin);
-    novoLivro.autor[strcspn(novoLivro.autor, "\n")] = '\0';  // Remove o '\n'
+    do {
+        printf("Digite o autor: ");
+        fgets(novoLivro.autor, sizeof(novoLivro.autor), stdin);
+        novoLivro.autor[strcspn(novoLivro.autor, "\n")] = '\0';  // Remove o '\n'
+        if (strlen(novoLivro.autor) == 0) {
+            printf("Erro: O autor nao pode ficar em branco.\n");
+        }
+    } while (strlen(novoLivro.autor) == 0);
 
     // Entrada do ano de publicação
     printf("Digite o ano de publicacao: ");
@@ -150,9 +160,9 @@ void excluirLivro() {
 
     // Pergunta ao usuário se ele deseja exclusão por título ou ISBN
     printf("Escolha o metodo de exclusao:\n");
-    printf("1. Excluir pelo Título\n");
-    printf("2. Excluir pelo ISBN\n");
-    printf("Opção: ");
+    printf("(1). Excluir pelo Titulo\n");
+    printf("(2). Excluir pelo ISBN\n");
+    printf("Opcao: ");
     scanf("%d", &opcao);
     getchar();  // Consome o '\n' deixado pelo scanf
 
@@ -194,49 +204,27 @@ void excluirLivro() {
         }
         printf("Livro com ISBN '%s' nao encontrado.\n", entrada);
     }
-    // Se o usuário inserir uma opção inválida
+    // Se a opção for inválida
     else {
-        printf("Opcao invalida. Tente novamente.\n");
+        printf("Opcao invalida!\n");
     }
 }
 
 // Função para emprestar um livro
 void emprestarLivro() {
-    char titulo_emprestimo[100];
+    char titulo_emprestar[100];
     printf("Digite o titulo do livro para emprestar: ");
-    fgets(titulo_emprestimo, sizeof(titulo_emprestimo), stdin);
-    titulo_emprestimo[strcspn(titulo_emprestimo, "\n")] = '\0';
+    fgets(titulo_emprestar, sizeof(titulo_emprestar), stdin);
+    titulo_emprestar[strcspn(titulo_emprestar, "\n")] = '\0';
 
     // Percorre a biblioteca para encontrar o livro
     for (int i = 0; i < quantidade_livros; i++) {
-        if (strcmp(biblioteca[i].titulo, titulo_emprestimo) == 0) {
-            if (biblioteca[i].emprestado == DISPONIVEL) {
-                biblioteca[i].emprestado = EMPRESTADO;  // Altera o status para emprestado
-                printf("Livro '%s' emprestado com sucesso!\n", biblioteca[i].titulo);
-            } else {
-                printf("Livro '%s' ja esta emprestado.\n", biblioteca[i].titulo);
-            }
-            return;
-        }
-    }
-    printf("Livro nao encontrado.\n");
-}
-
-// Função para devolver um livro
-void devolverLivro() {
-    char titulo_devolucao[100];
-    printf("Digite o titulo do livro para devolver: ");
-    fgets(titulo_devolucao, sizeof(titulo_devolucao), stdin);
-    titulo_devolucao[strcspn(titulo_devolucao, "\n")] = '\0';
-
-    // Percorre a biblioteca para encontrar o livro
-    for (int i = 0; i < quantidade_livros; i++) {
-        if (strcmp(biblioteca[i].titulo, titulo_devolucao) == 0) {
+        if (strcmp(biblioteca[i].titulo, titulo_emprestar) == 0) {
             if (biblioteca[i].emprestado == EMPRESTADO) {
-                biblioteca[i].emprestado = DISPONIVEL;  // Altera o status para disponível
-                printf("Livro '%s' devolvido com sucesso!\n", biblioteca[i].titulo);
+                printf("O livro ja esta emprestado.\n");
             } else {
-                printf("Livro '%s' ja esta disponivel.\n", biblioteca[i].titulo);
+                biblioteca[i].emprestado = EMPRESTADO;
+                printf("Livro '%s' emprestado com sucesso!\n", biblioteca[i].titulo);
             }
             return;
         }
@@ -244,7 +232,29 @@ void devolverLivro() {
     printf("Livro nao encontrado.\n");
 }
 
-// Função principal que executa o sistema
+// Função para devolver um livro emprestado
+void devolverLivro() {
+    char titulo_devolver[100];
+    printf("Digite o titulo do livro para devolver: ");
+    fgets(titulo_devolver, sizeof(titulo_devolver), stdin);
+    titulo_devolver[strcspn(titulo_devolver, "\n")] = '\0';
+
+    // Percorre a biblioteca para encontrar o livro
+    for (int i = 0; i < quantidade_livros; i++) {
+        if (strcmp(biblioteca[i].titulo, titulo_devolver) == 0) {
+            if (biblioteca[i].emprestado == DISPONIVEL) {
+                printf("O livro ja esta disponivel.\n");
+            } else {
+                biblioteca[i].emprestado = DISPONIVEL;
+                printf("Livro '%s' devolvido com sucesso!\n", biblioteca[i].titulo);
+            }
+            return;
+        }
+    }
+    printf("Livro nao encontrado.\n");
+}
+
+// Função principal
 int main() {
     telaDeBoasVindas();  // Exibe a tela de boas-vindas
     carregarSistema();   // Simula o carregamento do sistema
@@ -252,13 +262,13 @@ int main() {
     int opcao;
     do {
         printf("\n------  MENU PRINCIPAL ----\n");
-        printf("|(1)  < Adicionar livro > |\n");
-        printf("|(2)  < Listar livros   > |\n");
-        printf("|(3)  < Buscar livro    > |\n");
-        printf("|(4)  < Excluir livro   > |\n");
-        printf("|(5)  < Emprestar livro > |\n");
-        printf("|(6)  < Devolver livro  > |\n");
-        printf("|(0)       < Sair >       |\n");
+        printf(" (1)  < Adicionar livro >   \n");
+        printf(" (2)  < Listar livros   >   \n");
+        printf(" (3)  < Buscar livro    >   \n");
+        printf(" (4)  < Excluir livro   >   \n");
+        printf(" (5)  < Emprestar livro >   \n");
+        printf(" (6)  < Devolver livro  >   \n");
+        printf(" (0)       < Sair >         \n");
         printf("   Escolha uma opcao: \n");
         scanf("%d", &opcao);
         getchar();  // Consome o '\n' deixado pelo scanf
